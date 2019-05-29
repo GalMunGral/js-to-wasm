@@ -18,7 +18,7 @@ sudo apt install clang
 git clone --recursive https://github.com/WebAssembly/wabt
 cd wabt && make # This might take some time 
 ```
-### Compile `.wat` File into `.wasm` file
+### Compile `.wat` file into `.wasm`
 ```bash
-<project root>/wabt/out/clang/Debug/wat2wasm add5.wat -o add5.wasm
+<project root>/wabt/out/clang/Debug/wat2wasm <input>.wat -o <output>.wasm
 ```

@@ -12,8 +12,9 @@
 ```
 
 ### Download & build `wat2wasm` compiler
-***Dependencies**: `clang` and `cmake`*
 ```bash
+sudo apt install cmake
+sudo apt install clang
 git clone --recursive https://github.com/WebAssembly/wabt
 cd wabt && make # This might take some time 
 ```

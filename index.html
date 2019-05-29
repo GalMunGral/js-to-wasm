@@ -1,0 +1,13 @@
+<html>
+<body>
+<script>
+  WebAssembly.instantiateStreaming(fetch('addincr.wasm'), {})
+    .then(result => {
+      const addincr = result.instance.exports.addincr;
+      const a = Math.floor(Math.random() * 1000);
+      const b = Math.floor(Math.random() * 1000);
+      alert(`(${a} + ${b}) + 1 == ${addincr(a,b)}`);
+    })
+</script>
+</body>
+</html>

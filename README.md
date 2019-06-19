@@ -1,4 +1,4 @@
-### `.wat` is this? A function that adds two `i32` integers, then increment by `1`.
+### `.wat` is this? A function that adds two `i32` integers, then return the sum incremented by `1`.
 ```wasm
 (module
   (func $addincr (param i32) (param i32) (result i32)

@@ -11,14 +11,14 @@
 )
 ```
 
-### Download & build `wat2wasm` compiler
+### Build `wat2wasm` compiler
 ```bash
 sudo apt install cmake
 sudo apt install clang
 git clone --recursive https://github.com/WebAssembly/wabt
 cd wabt && make # This might take some time 
 ```
-### Compile `.wat` file into `.wasm`
+### Compile `.wat` into `.wasm`
 ```
 <project root>/wabt/out/clang/Debug/wat2wasm <input>.wat -o <output>.wasm
 ```

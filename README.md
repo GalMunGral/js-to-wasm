@@ -1,6 +1,3 @@
----
-path: wasm-adder
----
 ### `.wat`? The sum of two `i32` integers, incremented by 1.
 ```wasm
 (module

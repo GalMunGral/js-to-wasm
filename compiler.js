@@ -1,9 +1,32 @@
 const fs = require("fs");
+const path = require("path");
 const babylon = require("babylon");
 
-const out = fs.createWriteStream("./test.wat");
-const src = fs.readFileSync("src.js", { encoding: "utf8" });
-const ast = babylon.parse(src, { sourceType: "module" });
+const exported = [];
+
+const unop = {
+  "-": "f32.neg",
+  __sqrt__: "f32.sqrt",
+};
+
+const binop = {
+  "+": "f32.add",
+  "-": "f32.sub",
+  "*": "f32.mul",
+  "/": "f32.div",
+  "==": "f32.eq",
+  "!=": "f32.ne",
+  "<": "f32.lt",
+  ">": "f32.gt",
+  "<=": "f32.le",
+  ">=": "f32.ge",
+};
+
+const filename = process.argv[2];
+const basename = path.basename(filename, ".js");
+const input = fs.readFileSync(filename, { encoding: "utf8" });
+const ast = babylon.parse(input, { sourceType: "module" });
+fs.writeFileSync(`./${basename}.wat`, compileModule(ast.program));
 
 function isSpace(s) {
   return /^\s*$/.test(s);
@@ -34,8 +57,6 @@ function indent(strs, ...exprs) {
   return lines.map((line) => line.slice(indent)).join("\n");
 }
 
-const exported = [];
-
 function compileModule(node) {
   const body = node.body.flatMap((stmt) => compileStatement(stmt, []));
   return indent`
@@ -51,6 +72,8 @@ function compileModule(node) {
 
 function compileStatement(node, locals) {
   switch (node.type) {
+    case "ExpressionStatement":
+      return compileExpressionStatement(node);
     case "FunctionDeclaration":
       return compileFunctionDeclaration(node);
     case "VariableDeclaration":
@@ -59,52 +82,11 @@ function compileStatement(node, locals) {
       return compileIfStatement(node, locals);
     case "ReturnStatement":
       return compileReturnStatement(node);
-    case "ExpressionStatement":
-      return compileExpressionStatement(node);
     case "ExportNamedDeclaration":
       return compileExportDeclaration(node);
     default:
       return [];
   }
-}
-
-function compileExportDeclaration(node) {
-  if (node.declaration) {
-    if (node.declaration.type === "FunctionDeclaration") {
-      const name = node.declaration.id.name;
-      exported.push(`(export "${name}" (func $${name}))`);
-      return compileFunctionDeclaration(node.declaration);
-    }
-  } else {
-    node.specifiers.forEach((spec) => {
-      const localName = spec.local.name;
-      const exportedName = spec.exported.name;
-      exported.push(`(export "${exportedName}" (func $${localName}))`);
-    });
-  }
-  return [];
-}
-
-function compileFunctionDeclaration(node) {
-  const locals = [];
-  const name = node.id.name;
-  const params = node.params.map((p) => `(param $${p.name} f32)`);
-  const body = compileBlockStatement(node.body, locals);
-  return indent`
-    (func $${name} ${params} (result f32)
-      (local $__return__ f32) ${locals}
-      ${body}
-      (local.get $__return__)
-    )
-  `;
-}
-
-function compileBlockStatement(node, locals) {
-  return node.body.flatMap((statement) => compileStatement(statement, locals));
-}
-
-function compileReturnStatement(node) {
-  return [...compileExpression(node.argument), `(local.set $__return__)`];
 }
 
 function compileExpressionStatement(node) {
@@ -116,50 +98,6 @@ function compileExpressionStatement(node) {
     return compileExpression(node);
   }
 }
-
-function compileVariableDeclaration(node, locals) {
-  const instructions = [];
-  node.declarations.forEach((decl) => {
-    const name = decl.id.name;
-    locals.push(`(local $${name} f32)`);
-    if (decl.init) {
-      instructions.push(...compileExpression(decl.init));
-      instructions.push(`(local.set $${name})`);
-    }
-  });
-  return instructions;
-}
-
-function compileIfStatement(node, locals) {
-  const test = compileExpression(node.test);
-  const consequent = compileBlockStatement(node.consequent, locals);
-  const alternate = compileBlockStatement(node.alternate, locals);
-  return indent`
-    ${test}
-    (if
-      (then
-        ${consequent})
-      (else
-        ${alternate}))
-  `;
-}
-
-const binop = {
-  "+": "f32.add",
-  "-": "f32.sub",
-  "*": "f32.mul",
-  "/": "f32.div",
-  "==": "f32.eq",
-  "!=": "f32.ne",
-  "<": "f32.lt",
-  ">": "f32.gt",
-  "<=": "f32.le",
-  ">=": "f32.ge",
-};
-const unop = {
-  "-": "f32.neg",
-  __sqrt__: "f32.sqrt",
-};
 
 function compileExpression(node) {
   switch (node.type) {
@@ -201,4 +139,68 @@ function compileExpression(node) {
   }
 }
 
-out.end(compileModule(ast.program));
+function compileFunctionDeclaration(node) {
+  const locals = [];
+  const name = node.id.name;
+  const params = node.params.map((p) => `(param $${p.name} f32)`);
+  const body = compileBlockStatement(node.body, locals);
+  return indent`
+    (func $${name} ${params} (result f32)
+      (local $__return__ f32) ${locals}
+      ${body}
+      (local.get $__return__)
+    )
+  `;
+}
+
+function compileBlockStatement(node, locals) {
+  return node.body.flatMap((statement) => compileStatement(statement, locals));
+}
+
+function compileVariableDeclaration(node, locals) {
+  const instructions = [];
+  node.declarations.forEach((decl) => {
+    const name = decl.id.name;
+    locals.push(`(local $${name} f32)`);
+    if (decl.init) {
+      instructions.push(...compileExpression(decl.init));
+      instructions.push(`(local.set $${name})`);
+    }
+  });
+  return instructions;
+}
+
+function compileIfStatement(node, locals) {
+  const test = compileExpression(node.test);
+  const consequent = compileBlockStatement(node.consequent, locals);
+  const alternate = compileBlockStatement(node.alternate, locals);
+  return indent`
+    ${test}
+    (if
+      (then
+        ${consequent})
+      (else
+        ${alternate}))
+  `;
+}
+
+function compileReturnStatement(node) {
+  return [...compileExpression(node.argument), `(local.set $__return__)`];
+}
+
+function compileExportDeclaration(node) {
+  if (node.declaration) {
+    if (node.declaration.type === "FunctionDeclaration") {
+      const name = node.declaration.id.name;
+      exported.push(`(export "${name}" (func $${name}))`);
+      return compileFunctionDeclaration(node.declaration);
+    }
+  } else {
+    node.specifiers.forEach((spec) => {
+      const localName = spec.local.name;
+      const exportedName = spec.exported.name;
+      exported.push(`(export "${exportedName}" (func $${localName}))`);
+    });
+  }
+  return [];
+}

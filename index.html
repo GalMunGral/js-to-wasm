@@ -1,0 +1,19 @@
+<html>
+  <body>
+    <script>
+      const memory = new WebAssembly.Memory({ initial: 1 });
+      WebAssembly.instantiateStreaming(fetch("test.wasm"), {
+        js: {
+          mem: memory,
+          log: (start, length) => {
+            const bytes = new Uint8Array(memory.buffer, start, length);
+            const string = new TextDecoder("utf8").decode(bytes);
+            console.log(string);
+          },
+        },
+      }).then((result) => {
+        window.exports = result.instance.exports;
+      });
+    </script>
+  </body>
+</html>

@@ -1,2 +1,4 @@
 *.wasm
 wabt/
+.vscode/
+node_modules/

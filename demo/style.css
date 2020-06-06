@@ -2,41 +2,34 @@ body {
   margin-left: auto;
   margin-right: auto;
   margin-top: 50px;
-  width: 80vw;
-  font-family: "Courier New", Courier, monospace;
-  font-size: 20px;
+  width: 60vw;
+}
+body,
+#a-input,
+#a-display,
+#b-input,
+#b-display,
+#c-input,
+#c-display,
+.x-display {
   font-weight: bold;
+  font-family: "Courier New", Courier, monospace;
 }
 #a-input,
 #a-display {
   color: red;
-  font-weight: bold;
-  font-family: "Courier New", Courier, monospace;
-  font-size: 20px;
 }
 #b-input,
 #b-display {
   color: green;
-  font-weight: bold;
-  font-family: "Courier New", Courier, monospace;
-  font-size: 20px;
 }
 #c-input,
 #c-display {
   color: blue;
-  font-weight: bold;
-  font-family: "Courier New", Courier, monospace;
-  font-size: 20px;
 }
 .x-display {
   color: black;
-  font-weight: bold;
-  font-family: "Courier New", Courier, monospace;
-  font-size: 20px;
 }
 #result-display {
   color: gray;
-  font-weight: bold;
-  font-family: "Courier New", Courier, monospace;
-  font-size: 20px;
 }

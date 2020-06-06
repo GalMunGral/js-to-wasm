@@ -54,23 +54,38 @@ const transitions = {
     "(": "beforeOperand",
   },
   afterMultiplicativeOperator: {
-    NumericLiteral: "reduceTerm",
-    Identifier: "reduceTerm",
-    UnaryExpression: "reduceTerm",
-    BinaryExpression: "reduceTerm",
-    CallExpression: "reduceTerm",
+    NumericLiteral: "afterMultiplicativeOperand",
+    Identifier: "afterMultiplicativeOperand",
+    UnaryExpression: "afterMultiplicativeOperand",
+    BinaryExpression: "afterMultiplicativeOperand",
+    CallExpression: "afterMultiplicativeOperand",
     "(": "beforeOperand",
   },
   afterAdditiveOperand: {
     AdditiveOperator: "afterAdditiveOperator",
     MultiplicativeOperator: "afterMultiplicativeOperator",
-    ")": "reduceTerms",
     "(": "beforeArgument",
+    ")": "reduceTerms",
     ";": "reduceFullExpression",
+    ",": "reduceFullExpression",
   },
-
-  // Call Expression & Assignment Expression
-
+  afterMultiplicativeOperand: {
+    AdditiveOperator: "reduceTerm",
+    MultiplicativeOperator: "reduceTerm",
+    "(": "beforeArgument",
+    ")": "reduceTerm",
+    ";": "reduceTerm",
+    ",": "reduceTerm",
+  },
+  beforeArgument: {
+    NumericLiteral: "afterArgument",
+    Identifier: "afterArgument",
+    ")": "reduceCallExpression",
+  },
+  afterArgument: {
+    ",": "beforeArgument",
+    ")": "reduceCallExpression",
+  },
   afterIdentifier: {
     "=": "beforeAssignmentRight",
     "(": "beforeArgument",
@@ -84,15 +99,6 @@ const transitions = {
     AdditiveOperator: "afterUnaryOperator",
     "(": "beforeOperand",
     FullExpression: "reduceAssignmentExpression",
-  },
-  beforeArgument: {
-    NumericLiteral: "afterArgument",
-    Identifier: "afterArgument",
-    ")": "reduceCallExpression",
-  },
-  afterArgument: {
-    ",": "beforeArgument",
-    ")": "reduceCallExpression",
   },
   afterExpression: {
     ";": "reduceExpressionStatement",
@@ -215,7 +221,7 @@ function parse(s) {
     const type = nextToken.type;
     let nextState = transitions[state][type];
 
-    // console.log(state, "->", nextState, nextToken, "\n");
+    console.log(state, "->", nextState, nextToken, "\n");
 
     if (!shouldReduce(nextState)) {
       stack.push({ state: nextState, node: nextToken });
@@ -283,7 +289,7 @@ function parse(s) {
       const type = node.complete ? "FullExpression" : node.type;
       nextState = transitions[state][type];
 
-      // console.log("REDUCE:", state, "->", nextState, node, "\n");
+      console.log("REDUCE:", state, "->", nextState, node, "\n");
     }
     stack.push({ state: nextState, node });
   }
@@ -307,10 +313,8 @@ function parse(s) {
     };
   }
 
-  function reduceTerm(right) {
-    if (right === nextToken) {
-      ({ value: nextToken, done } = lex.next()); // Discard
-    }
+  function reduceTerm() {
+    const right = stack.pop().node;
     const operator = stack.pop().node.value;
     const left = stack.pop().node;
     return {

@@ -264,8 +264,8 @@
                 {
                   "type": "ReturnStatement",
                   "argument": {
-                    "type": "Identifier",
-                    "name": "n",
+                    "type": "NumericLiteral",
+                    "value": 1,
                     "complete": true
                   }
                 }
@@ -305,6 +305,10 @@
                     "type": "BinaryExpression",
                     "operator": "*",
                     "left": {
+                      "type": "Identifier",
+                      "name": "n"
+                    },
+                    "right": {
                       "type": "CallExpression",
                       "callee": {
                         "type": "Identifier",
@@ -316,10 +320,6 @@
                           "name": "m"
                         }
                       ]
-                    },
-                    "right": {
-                      "type": "Identifier",
-                      "name": "n"
                     },
                     "complete": true
                   }
@@ -334,7 +334,7 @@
       "type": "FunctionDeclaration",
       "id": {
         "type": "Identifier",
-        "name": "fib"
+        "name": "fibonacci"
       },
       "params": [
         {
@@ -382,32 +382,7 @@
                       "type": "Declarator",
                       "id": {
                         "type": "Identifier",
-                        "name": "a"
-                      },
-                      "init": {
-                        "type": "BinaryExpression",
-                        "operator": "-",
-                        "left": {
-                          "type": "Identifier",
-                          "name": "n"
-                        },
-                        "right": {
-                          "type": "NumericLiteral",
-                          "value": 1
-                        },
-                        "complete": true
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "VariableDeclaration",
-                  "declarations": [
-                    {
-                      "type": "Declarator",
-                      "id": {
-                        "type": "Identifier",
-                        "name": "b"
+                        "name": "l"
                       },
                       "init": {
                         "type": "BinaryExpression",
@@ -426,6 +401,31 @@
                   ]
                 },
                 {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "Declarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "m"
+                      },
+                      "init": {
+                        "type": "BinaryExpression",
+                        "operator": "-",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "n"
+                        },
+                        "right": {
+                          "type": "NumericLiteral",
+                          "value": 1
+                        },
+                        "complete": true
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "ReturnStatement",
                   "argument": {
                     "type": "BinaryExpression",
@@ -434,12 +434,12 @@
                       "type": "CallExpression",
                       "callee": {
                         "type": "Identifier",
-                        "name": "fib"
+                        "name": "fibonacci"
                       },
                       "arguments": [
                         {
                           "type": "Identifier",
-                          "name": "a"
+                          "name": "l"
                         }
                       ]
                     },
@@ -447,12 +447,12 @@
                       "type": "CallExpression",
                       "callee": {
                         "type": "Identifier",
-                        "name": "fib"
+                        "name": "fibonacci"
                       },
                       "arguments": [
                         {
                           "type": "Identifier",
-                          "name": "b"
+                          "name": "m"
                         }
                       ]
                     },
@@ -494,11 +494,11 @@
           "type": "ExportSpecifier",
           "local": {
             "type": "Identifier",
-            "name": "fib"
+            "name": "fibonacci"
           },
           "exported": {
             "type": "Identifier",
-            "name": "fib"
+            "name": "fibonacci"
           }
         }
       ]

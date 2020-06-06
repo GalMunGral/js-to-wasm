@@ -4,25 +4,32 @@
   </head>
   <body>
     <h1>JavaScript-to-WebAssembly Compiler Demo</h1>
-    <form onsubmit="event.preventDefault();">
-      <input type="number" id="a-input" value="130" />
-      <label> x<sup>2</sup> + </label>
-      <input type="number" id="b-input" value="250" />
-      <label> x + </label>
-      <input type="number" id="c-input" value="40" />
-      <label> = 0 </label>
-    </form>
-    <p>
-      <span id="a-display">0</span> * <span class="x-display">0</span
-      ><sup>2</sup> +
-    </p>
-    <p>
-      <span id="b-display">0</span> * <span class="x-display">0</span> +
-      <span id="c-display"> 0 </span>
-    </p>
-    <p>= <span id="result-display">0</span></p>
-    <p id="error-display"></p>
+    <div>
+      <h5>Quadratic Formula:</h5>
+      <form onsubmit="event.preventDefault();">
+        <input type="number" id="a-input" value="130" />
+        <label> x<sup>2</sup> + </label>
+        <input type="number" id="b-input" value="250" />
+        <label> x + </label>
+        <input type="number" id="c-input" value="40" />
+        <label> = 0 </label>
+      </form>
+      <p>
+        <span id="a-display">0</span> * <span class="x-display">0</span
+        ><sup>2</sup> +
+      </p>
+      <p>
+        <span id="b-display">0</span> * <span class="x-display">0</span> +
+        <span id="c-display"> 0 </span>
+      </p>
+      <p>= <span id="result-display">0</span></p>
+      <p id="error-display"></p>
+    </div>
 
+    <h5>Fibonacci:</h5>
+    <p id="fibonacci"></p>
+    <h5>Factorial:</h5>
+    <p id="factorial"></p>
     <script src="index.js"></script>
   </body>
 </html>

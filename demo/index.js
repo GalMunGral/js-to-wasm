@@ -8,6 +8,8 @@ window.onload = function () {
   const xDisplay = document.querySelectorAll(".x-display");
   const resultDisplay = document.getElementById("result-display");
   const errorDisplay = document.getElementById("error-display");
+  const fibonacciDisplay = this.document.getElementById("fibonacci");
+  const factorialDisplay = this.document.getElementById("factorial");
 
   const memory = new WebAssembly.Memory({ initial: 1 });
   WebAssembly.instantiateStreaming(fetch("test.wasm"), {
@@ -21,7 +23,12 @@ window.onload = function () {
     },
   }).then((result) => {
     const { solveQuadratic, fibonacci, factorial } = result.instance.exports;
-    window.factorial = factorial;
+    const fibonacciArr = [];
+    const factorialArr = [];
+    for (let i = 0; i < 25; i++) factorialArr.push(factorial(i));
+    for (let i = 0; i < 25; i++) fibonacciArr.push(fibonacci(i));
+    fibonacciDisplay.textContent = fibonacciArr.join(", ");
+    factorialDisplay.textContent = factorialArr.join(", ");
 
     function update() {
       errorDisplay.textContent = "";

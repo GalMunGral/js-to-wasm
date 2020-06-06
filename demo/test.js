@@ -15,21 +15,21 @@ function solve(a, b, c) {
 
 function factorial(n) {
   if (n < 2) {
-    return n;
+    return 1;
   } else {
     var m = n - 1;
-    return factorial(m) * n;
+    return n * factorial(m);
   }
 }
 
-function fib(n) {
+function fibonacci(n) {
   if (n < 2) {
     return n;
   } else {
-    var a = n - 1;
-    var b = n - 2;
-    return fib(a) + fib(b);
+    var l = n - 2;
+    var m = n - 1;
+    return fibonacci(l) + fibonacci(m);
   }
 }
 
-export { solve as solveQuadratic, factorial, fib };
+export { solve as solveQuadratic, factorial, fibonacci };

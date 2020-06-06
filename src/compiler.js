@@ -28,6 +28,7 @@ const basename = path.basename(filename, ".js");
 const input = fs.readFileSync(filename, { encoding: "utf8" });
 // const ast = babylon.parse(input, { sourceType: "module" });
 const ast = parse(input);
+fs.writeFileSync(`./${basename}.ast`, JSON.stringify(ast, null, 2));
 fs.writeFileSync(`./${basename}.wat`, compileModule(ast));
 
 function isSpace(s) {

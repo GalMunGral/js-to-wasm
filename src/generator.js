@@ -1,8 +1,3 @@
-const fs = require("fs");
-const path = require("path");
-// const babylon = require("babylon");
-const parse = require("./parser");
-
 const exported = [];
 
 const unop = {
@@ -22,14 +17,6 @@ const binop = {
   "<=": "f32.le",
   ">=": "f32.ge",
 };
-
-const filename = process.argv[2];
-const basename = path.basename(filename, ".js");
-const input = fs.readFileSync(filename, { encoding: "utf8" });
-// const ast = babylon.parse(input, { sourceType: "module" });
-const ast = parse(input);
-fs.writeFileSync(`./${basename}.ast`, JSON.stringify(ast, null, 2));
-fs.writeFileSync(`./${basename}.wat`, compileModule(ast));
 
 function isSpace(s) {
   return /^\s*$/.test(s);
@@ -60,8 +47,8 @@ function indent(strs, ...exprs) {
   return lines.map((line) => line.slice(indent)).join("\n");
 }
 
-function compileModule(node) {
-  const body = node.body.flatMap((stmt) => compileStatement(stmt, []));
+function generateModule(node) {
+  const body = node.body.flatMap((stmt) => generateStatement(stmt, []));
   return indent`
     (module
       (import "js" "log" (func $log (param i32) (param i32)))
@@ -73,36 +60,36 @@ function compileModule(node) {
   `;
 }
 
-function compileStatement(node, locals) {
+function generateStatement(node, locals) {
   switch (node.type) {
     case "ExpressionStatement":
-      return compileExpressionStatement(node);
+      return generateExpressionStatement(node);
     case "FunctionDeclaration":
-      return compileFunctionDeclaration(node);
+      return generateFunctionDeclaration(node);
     case "VariableDeclaration":
-      return compileVariableDeclaration(node, locals);
+      return generateVariableDeclaration(node, locals);
     case "IfStatement":
-      return compileIfStatement(node, locals);
+      return generateIfStatement(node, locals);
     case "ReturnStatement":
-      return compileReturnStatement(node);
+      return generateReturnStatement(node);
     case "ExportNamedDeclaration":
-      return compileExportDeclaration(node);
+      return generateExportDeclaration(node);
     default:
       return [];
   }
 }
 
-function compileExpressionStatement(node) {
+function generateExpressionStatement(node) {
   node = node.expression;
   if (node.type === "AssignmentExpression") {
     const name = node.left.name;
-    return [...compileExpression(node.right), `(local.set $${name})`];
+    return [...generateExpression(node.right), `(local.set $${name})`];
   } else {
-    return compileExpression(node);
+    return generateExpression(node);
   }
 }
 
-function compileExpression(node) {
+function generateExpression(node) {
   switch (node.type) {
     case "NumericLiteral": {
       return [`(f32.const ${node.value})`];
@@ -111,14 +98,14 @@ function compileExpression(node) {
       return [`(local.get $${node.name})`];
     }
     case "BinaryExpression": {
-      const left = compileExpression(node.left);
-      const right = compileExpression(node.right);
+      const left = generateExpression(node.left);
+      const right = generateExpression(node.right);
       const operation = `(${binop[node.operator]})`;
       return [...left, ...right, operation];
     }
     case "UnaryExpression": {
       const operation = `(${unop[node.operator]})`;
-      return [...compileExpression(node.argument), operation];
+      return [...generateExpression(node.argument), operation];
     }
     case "CallExpression": {
       const fn = node.callee.name;
@@ -130,10 +117,10 @@ function compileExpression(node) {
         `;
       }
       if (/^__\w+__$/.test(fn)) {
-        const args = node.arguments.flatMap((arg) => compileExpression(arg));
+        const args = node.arguments.flatMap((arg) => generateExpression(arg));
         return [...args, `(${unop[fn] || binop[fn]})`];
       }
-      const args = node.arguments.flatMap((arg) => compileExpression(arg));
+      const args = node.arguments.flatMap((arg) => generateExpression(arg));
       return [...args, `(call $${fn})`];
     }
     default:
@@ -142,11 +129,11 @@ function compileExpression(node) {
   }
 }
 
-function compileFunctionDeclaration(node) {
+function generateFunctionDeclaration(node) {
   const locals = [];
   const name = node.id.name;
   const params = node.params.map((p) => `(param $${p.name} f32)`);
-  const body = compileBlockStatement(node.body, locals);
+  const body = generateBlockStatement(node.body, locals);
   return indent`
     (func $${name} ${params} (result f32)
       (local $__return__ f32) ${locals}
@@ -156,27 +143,27 @@ function compileFunctionDeclaration(node) {
   `;
 }
 
-function compileBlockStatement(node, locals) {
-  return node.body.flatMap((statement) => compileStatement(statement, locals));
+function generateBlockStatement(node, locals) {
+  return node.body.flatMap((statement) => generateStatement(statement, locals));
 }
 
-function compileVariableDeclaration(node, locals) {
+function generateVariableDeclaration(node, locals) {
   const instructions = [];
   node.declarations.forEach((decl) => {
     const name = decl.id.name;
     locals.push(`(local $${name} f32)`);
     if (decl.init) {
-      instructions.push(...compileExpression(decl.init));
+      instructions.push(...generateExpression(decl.init));
       instructions.push(`(local.set $${name})`);
     }
   });
   return instructions;
 }
 
-function compileIfStatement(node, locals) {
-  const test = compileExpression(node.test);
-  const consequent = compileBlockStatement(node.consequent, locals);
-  const alternate = compileBlockStatement(node.alternate, locals);
+function generateIfStatement(node, locals) {
+  const test = generateExpression(node.test);
+  const consequent = generateBlockStatement(node.consequent, locals);
+  const alternate = generateBlockStatement(node.alternate, locals);
   return indent`
     ${test}
     (if
@@ -187,16 +174,16 @@ function compileIfStatement(node, locals) {
   `;
 }
 
-function compileReturnStatement(node) {
-  return [...compileExpression(node.argument), `(local.set $__return__)`];
+function generateReturnStatement(node) {
+  return [...generateExpression(node.argument), `(local.set $__return__)`];
 }
 
-function compileExportDeclaration(node) {
+function generateExportDeclaration(node) {
   if (node.declaration) {
     if (node.declaration.type === "FunctionDeclaration") {
       const name = node.declaration.id.name;
       exported.push(`(export "${name}" (func $${name}))`);
-      return compileFunctionDeclaration(node.declaration);
+      return generateFunctionDeclaration(node.declaration);
     }
   } else {
     node.specifiers.forEach((spec) => {
@@ -207,3 +194,5 @@ function compileExportDeclaration(node) {
   }
   return [];
 }
+
+module.exports = generateModule;

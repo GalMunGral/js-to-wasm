@@ -47,8 +47,8 @@ function indent(strs, ...exprs) {
   return lines.map((line) => line.slice(indent)).join("\n");
 }
 
-function generateModule(node) {
-  const body = node.body.flatMap((stmt) => generateStatement(stmt, []));
+function emitModule(node) {
+  const body = node.body.flatMap((stmt) => emitStatement(stmt, []));
   return indent`
     (module
       (import "js" "log" (func $log (param i32) (param i32)))
@@ -60,36 +60,36 @@ function generateModule(node) {
   `;
 }
 
-function generateStatement(node, locals) {
+function emitStatement(node, locals) {
   switch (node.type) {
     case "ExpressionStatement":
-      return generateExpressionStatement(node);
+      return emitExpressionStatement(node);
     case "FunctionDeclaration":
-      return generateFunctionDeclaration(node);
+      return emitFunctionDeclaration(node);
     case "VariableDeclaration":
-      return generateVariableDeclaration(node, locals);
+      return emitVariableDeclaration(node, locals);
     case "IfStatement":
-      return generateIfStatement(node, locals);
+      return emitIfStatement(node, locals);
     case "ReturnStatement":
-      return generateReturnStatement(node);
+      return emitReturnStatement(node);
     case "ExportNamedDeclaration":
-      return generateExportDeclaration(node);
+      return emitExportDeclaration(node);
     default:
       return [];
   }
 }
 
-function generateExpressionStatement(node) {
+function emitExpressionStatement(node) {
   node = node.expression;
   if (node.type === "AssignmentExpression") {
     const name = node.left.name;
-    return [...generateExpression(node.right), `(local.set $${name})`];
+    return [...emitExpression(node.right), `(local.set $${name})`];
   } else {
-    return generateExpression(node);
+    return emitExpression(node);
   }
 }
 
-function generateExpression(node) {
+function emitExpression(node) {
   switch (node.type) {
     case "NumericLiteral": {
       return [`(f64.const ${node.value})`];
@@ -98,14 +98,14 @@ function generateExpression(node) {
       return [`(local.get $${node.name})`];
     }
     case "BinaryExpression": {
-      const left = generateExpression(node.left);
-      const right = generateExpression(node.right);
+      const left = emitExpression(node.left);
+      const right = emitExpression(node.right);
       const operation = `(${binop[node.operator]})`;
       return [...left, ...right, operation];
     }
     case "UnaryExpression": {
       const operation = `(${unop[node.operator]})`;
-      return [...generateExpression(node.argument), operation];
+      return [...emitExpression(node.argument), operation];
     }
     case "CallExpression": {
       const fn = node.callee.name;
@@ -117,10 +117,10 @@ function generateExpression(node) {
         `;
       }
       if (/^__\w+__$/.test(fn)) {
-        const args = node.arguments.flatMap((arg) => generateExpression(arg));
+        const args = node.arguments.flatMap((arg) => emitExpression(arg));
         return [...args, `(${unop[fn] || binop[fn]})`];
       }
-      const args = node.arguments.flatMap((arg) => generateExpression(arg));
+      const args = node.arguments.flatMap((arg) => emitExpression(arg));
       return [...args, `(call $${fn})`];
     }
     default:
@@ -129,11 +129,11 @@ function generateExpression(node) {
   }
 }
 
-function generateFunctionDeclaration(node) {
+function emitFunctionDeclaration(node) {
   const locals = [];
   const name = node.id.name;
   const params = node.params.map((p) => `(param $${p.name} f64)`);
-  const body = generateBlockStatement(node.body, locals);
+  const body = emitBlockStatement(node.body, locals);
   return indent`
     (func $${name} ${params} (result f64)
       (local $__return__ f64) ${locals}
@@ -143,27 +143,27 @@ function generateFunctionDeclaration(node) {
   `;
 }
 
-function generateBlockStatement(node, locals) {
-  return node.body.flatMap((statement) => generateStatement(statement, locals));
+function emitBlockStatement(node, locals) {
+  return node.body.flatMap((statement) => emitStatement(statement, locals));
 }
 
-function generateVariableDeclaration(node, locals) {
+function emitVariableDeclaration(node, locals) {
   const instructions = [];
   node.declarations.forEach((decl) => {
     const name = decl.id.name;
     locals.push(`(local $${name} f64)`);
     if (decl.init) {
-      instructions.push(...generateExpression(decl.init));
+      instructions.push(...emitExpression(decl.init));
       instructions.push(`(local.set $${name})`);
     }
   });
   return instructions;
 }
 
-function generateIfStatement(node, locals) {
-  const test = generateExpression(node.test);
-  const consequent = generateBlockStatement(node.consequent, locals);
-  const alternate = generateBlockStatement(node.alternate, locals);
+function emitIfStatement(node, locals) {
+  const test = emitExpression(node.test);
+  const consequent = emitBlockStatement(node.consequent, locals);
+  const alternate = emitBlockStatement(node.alternate, locals);
   return indent`
     ${test}
     (if
@@ -174,16 +174,16 @@ function generateIfStatement(node, locals) {
   `;
 }
 
-function generateReturnStatement(node) {
-  return [...generateExpression(node.argument), `(local.set $__return__)`];
+function emitReturnStatement(node) {
+  return [...emitExpression(node.argument), `(local.set $__return__)`];
 }
 
-function generateExportDeclaration(node) {
+function emitExportDeclaration(node) {
   if (node.declaration) {
     if (node.declaration.type === "FunctionDeclaration") {
       const name = node.declaration.id.name;
       exported.push(`(export "${name}" (func $${name}))`);
-      return generateFunctionDeclaration(node.declaration);
+      return emitFunctionDeclaration(node.declaration);
     }
   } else {
     node.specifiers.forEach((spec) => {
@@ -195,4 +195,4 @@ function generateExportDeclaration(node) {
   return [];
 }
 
-module.exports = generateModule;
+module.exports = emitModule;

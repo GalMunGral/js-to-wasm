@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const parse = require("./src/parser");
-const generate = require("./src/generator");
+const generate = require("./src/emitter");
 
 const filename = process.argv[2];
 const basename = path.basename(filename, ".js");

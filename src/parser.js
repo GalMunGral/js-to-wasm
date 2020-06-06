@@ -1,6 +1,6 @@
 const lexer = require("./lexer");
 
-function peek(stack) {
+function top(stack) {
   return stack[stack.length - 1];
 }
 
@@ -211,7 +211,7 @@ function parse(s) {
   let { value: nextToken, done } = lex.next();
 
   while (!done) {
-    const state = peek(stack).state;
+    const state = top(stack).state;
     const type = nextToken.type;
     let nextState = transitions[state][type];
 
@@ -279,7 +279,7 @@ function parse(s) {
           break;
       }
 
-      const state = peek(stack).state;
+      const state = top(stack).state;
       const type = node.complete ? "FullExpression" : node.type;
       nextState = transitions[state][type];
 
@@ -347,7 +347,7 @@ function parse(s) {
     const temp = []; // Reverse
     let node;
     while (
-      (node = peek(stack).node) &&
+      (node = top(stack).node) &&
       !(node.type === "return" || node.type === "=")
     ) {
       temp.push(stack.pop().node);
@@ -483,7 +483,7 @@ function parse(s) {
   function reduceExportSpecifier() {
     ({ value: nextToken, done } = lex.next()); // `,` or `}`
     const exported = stack.pop().node;
-    if (peek(stack).node.type === "as") {
+    if (top(stack).node.type === "as") {
       stack.pop();
       const local = stack.pop().node;
       return { type: "ExportSpecifier", local, exported };

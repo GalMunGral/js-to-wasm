@@ -1,21 +1,21 @@
 const exported = [];
 
 const unop = {
-  "-": "f32.neg",
-  __sqrt__: "f32.sqrt",
+  "-": "f64.neg",
+  __sqrt__: "f64.sqrt",
 };
 
 const binop = {
-  "+": "f32.add",
-  "-": "f32.sub",
-  "*": "f32.mul",
-  "/": "f32.div",
-  "==": "f32.eq",
-  "!=": "f32.ne",
-  "<": "f32.lt",
-  ">": "f32.gt",
-  "<=": "f32.le",
-  ">=": "f32.ge",
+  "+": "f64.add",
+  "-": "f64.sub",
+  "*": "f64.mul",
+  "/": "f64.div",
+  "==": "f64.eq",
+  "!=": "f64.ne",
+  "<": "f64.lt",
+  ">": "f64.gt",
+  "<=": "f64.le",
+  ">=": "f64.ge",
 };
 
 function isSpace(s) {
@@ -92,7 +92,7 @@ function generateExpressionStatement(node) {
 function generateExpression(node) {
   switch (node.type) {
     case "NumericLiteral": {
-      return [`(f32.const ${node.value})`];
+      return [`(f64.const ${node.value})`];
     }
     case "Identifier": {
       return [`(local.get $${node.name})`];
@@ -132,11 +132,11 @@ function generateExpression(node) {
 function generateFunctionDeclaration(node) {
   const locals = [];
   const name = node.id.name;
-  const params = node.params.map((p) => `(param $${p.name} f32)`);
+  const params = node.params.map((p) => `(param $${p.name} f64)`);
   const body = generateBlockStatement(node.body, locals);
   return indent`
-    (func $${name} ${params} (result f32)
-      (local $__return__ f32) ${locals}
+    (func $${name} ${params} (result f64)
+      (local $__return__ f64) ${locals}
       ${body}
       (local.get $__return__)
     )
@@ -151,7 +151,7 @@ function generateVariableDeclaration(node, locals) {
   const instructions = [];
   node.declarations.forEach((decl) => {
     const name = decl.id.name;
-    locals.push(`(local $${name} f32)`);
+    locals.push(`(local $${name} f64)`);
     if (decl.init) {
       instructions.push(...generateExpression(decl.init));
       instructions.push(`(local.set $${name})`);

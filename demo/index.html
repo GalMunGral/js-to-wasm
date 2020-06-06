@@ -1,19 +1,28 @@
 <html>
+  <head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
   <body>
-    <script>
-      const memory = new WebAssembly.Memory({ initial: 1 });
-      WebAssembly.instantiateStreaming(fetch("test.wasm"), {
-        js: {
-          mem: memory,
-          log: (start, length) => {
-            const bytes = new Uint8Array(memory.buffer, start, length);
-            const string = new TextDecoder("utf8").decode(bytes);
-            console.log(string);
-          },
-        },
-      }).then((result) => {
-        window.exports = result.instance.exports;
-      });
-    </script>
+    <h1>JavaScript-to-WebAssembly Compiler Demo</h1>
+    <form onsubmit="event.preventDefault();">
+      <input type="number" id="a-input" value="130" />
+      <label> x<sup>2</sup> + </label>
+      <input type="number" id="b-input" value="250" />
+      <label> x + </label>
+      <input type="number" id="c-input" value="40" />
+      <label> = 0 </label>
+    </form>
+    <p>
+      <span id="a-display">0</span> * <span class="x-display">0</span
+      ><sup>2</sup> +
+    </p>
+    <p>
+      <span id="b-display">0</span> * <span class="x-display">0</span> +
+      <span id="c-display"> 0 </span>
+    </p>
+    <p>= <span id="result-display">0</span></p>
+    <p id="error-display"></p>
+
+    <script src="index.js"></script>
   </body>
 </html>

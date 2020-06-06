@@ -5,7 +5,7 @@
   "main": "compiler.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cd demo && node ../compiler.js test.js && wat2wasm test.wat -o test.wasm"
+    "dev": "cd demo && node ../src/compiler.js test.js && wat2wasm test.wat -o test.wasm"
   },
   "repository": {
     "type": "git",

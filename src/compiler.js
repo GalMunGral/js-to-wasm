@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
-const babylon = require("babylon");
+// const babylon = require("babylon");
+const parse = require("./parser");
 
 const exported = [];
 
@@ -25,8 +26,9 @@ const binop = {
 const filename = process.argv[2];
 const basename = path.basename(filename, ".js");
 const input = fs.readFileSync(filename, { encoding: "utf8" });
-const ast = babylon.parse(input, { sourceType: "module" });
-fs.writeFileSync(`./${basename}.wat`, compileModule(ast.program));
+// const ast = babylon.parse(input, { sourceType: "module" });
+const ast = parse(input);
+fs.writeFileSync(`./${basename}.wat`, compileModule(ast));
 
 function isSpace(s) {
   return /^\s*$/.test(s);

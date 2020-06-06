@@ -1,4 +1,4 @@
-### Install `wat2wasm`
+### Install Dependencies
 
 ```bash
 sudo apt install cmake

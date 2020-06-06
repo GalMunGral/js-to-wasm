@@ -230,6 +230,242 @@
       }
     },
     {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "factorial"
+      },
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "n"
+        }
+      ],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "IfStatement",
+            "test": {
+              "type": "BinaryExpression",
+              "operator": "<",
+              "left": {
+                "type": "Identifier",
+                "name": "n"
+              },
+              "right": {
+                "type": "NumericLiteral",
+                "value": 2
+              }
+            },
+            "consequent": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ReturnStatement",
+                  "argument": {
+                    "type": "Identifier",
+                    "name": "n",
+                    "complete": true
+                  }
+                }
+              ]
+            },
+            "alternate": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "Declarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "m"
+                      },
+                      "init": {
+                        "type": "BinaryExpression",
+                        "operator": "-",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "n"
+                        },
+                        "right": {
+                          "type": "NumericLiteral",
+                          "value": 1
+                        },
+                        "complete": true
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "ReturnStatement",
+                  "argument": {
+                    "type": "BinaryExpression",
+                    "operator": "*",
+                    "left": {
+                      "type": "CallExpression",
+                      "callee": {
+                        "type": "Identifier",
+                        "name": "factorial"
+                      },
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "m"
+                        }
+                      ]
+                    },
+                    "right": {
+                      "type": "Identifier",
+                      "name": "n"
+                    },
+                    "complete": true
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "fib"
+      },
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "n"
+        }
+      ],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "IfStatement",
+            "test": {
+              "type": "BinaryExpression",
+              "operator": "<",
+              "left": {
+                "type": "Identifier",
+                "name": "n"
+              },
+              "right": {
+                "type": "NumericLiteral",
+                "value": 2
+              }
+            },
+            "consequent": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "ReturnStatement",
+                  "argument": {
+                    "type": "Identifier",
+                    "name": "n",
+                    "complete": true
+                  }
+                }
+              ]
+            },
+            "alternate": {
+              "type": "BlockStatement",
+              "body": [
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "Declarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "a"
+                      },
+                      "init": {
+                        "type": "BinaryExpression",
+                        "operator": "-",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "n"
+                        },
+                        "right": {
+                          "type": "NumericLiteral",
+                          "value": 1
+                        },
+                        "complete": true
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "VariableDeclaration",
+                  "declarations": [
+                    {
+                      "type": "Declarator",
+                      "id": {
+                        "type": "Identifier",
+                        "name": "b"
+                      },
+                      "init": {
+                        "type": "BinaryExpression",
+                        "operator": "-",
+                        "left": {
+                          "type": "Identifier",
+                          "name": "n"
+                        },
+                        "right": {
+                          "type": "NumericLiteral",
+                          "value": 2
+                        },
+                        "complete": true
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "ReturnStatement",
+                  "argument": {
+                    "type": "BinaryExpression",
+                    "operator": "+",
+                    "left": {
+                      "type": "CallExpression",
+                      "callee": {
+                        "type": "Identifier",
+                        "name": "fib"
+                      },
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "a"
+                        }
+                      ]
+                    },
+                    "right": {
+                      "type": "CallExpression",
+                      "callee": {
+                        "type": "Identifier",
+                        "name": "fib"
+                      },
+                      "arguments": [
+                        {
+                          "type": "Identifier",
+                          "name": "b"
+                        }
+                      ]
+                    },
+                    "complete": true
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "type": "ExportNamedDeclaration",
       "specifiers": [
         {
@@ -241,6 +477,28 @@
           "exported": {
             "type": "Identifier",
             "name": "solveQuadratic"
+          }
+        },
+        {
+          "type": "ExportSpecifier",
+          "local": {
+            "type": "Identifier",
+            "name": "factorial"
+          },
+          "exported": {
+            "type": "Identifier",
+            "name": "factorial"
+          }
+        },
+        {
+          "type": "ExportSpecifier",
+          "local": {
+            "type": "Identifier",
+            "name": "fib"
+          },
+          "exported": {
+            "type": "Identifier",
+            "name": "fib"
           }
         }
       ]

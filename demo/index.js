@@ -20,7 +20,9 @@ window.onload = function () {
       },
     },
   }).then((result) => {
-    const { solveQuadratic } = result.instance.exports;
+    const { solveQuadratic, fibonacci, factorial } = result.instance.exports;
+    window.factorial = factorial;
+
     function update() {
       errorDisplay.textContent = "";
       const a = +aInput.value || 0;

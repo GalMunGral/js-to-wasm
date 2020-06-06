@@ -13,4 +13,23 @@ function solve(a, b, c) {
   }
 }
 
-export { solve as solveQuadratic };
+function factorial(n) {
+  if (n < 2) {
+    return n;
+  } else {
+    var m = n - 1;
+    return factorial(m) * n;
+  }
+}
+
+function fib(n) {
+  if (n < 2) {
+    return n;
+  } else {
+    var a = n - 1;
+    var b = n - 2;
+    return fib(a) + fib(b);
+  }
+}
+
+export { solve as solveQuadratic, factorial, fib };

@@ -11,5 +11,8 @@ const src = fs.readFileSync(filename, { encoding: "utf8" });
 const ast = parse(src);
 const wat = generate(ast);
 
-fs.writeFileSync(`${pathname}/${basename}.ast`, JSON.stringify(ast, null, 2));
 fs.writeFileSync(`${pathname}/${basename}.wat`, wat);
+fs.writeFileSync(
+  `${pathname}/${basename}.ast.json`,
+  JSON.stringify(ast, null, 2)
+);
